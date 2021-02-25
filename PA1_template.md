@@ -15,6 +15,8 @@ library(dplyr)
 options(dplyr.summarise.inform = FALSE) ## gets rid of a pesky "summarise()` ungrouping output (override with `.groups` argument)" message instead of fixing the problem
 library(data.table)
 library(ggplot2)
+options(scipen = 999) ## gets rid of some unnecessary scientific notation later
+options(digits = 2)
 if (!exists("activity.csv")) {
   unzip("activity.zip")
 }
@@ -47,7 +49,7 @@ hist(steps$steptotal, ylab = "Frequency of Steps", xlab = "Total Steps per Day",
 meansteptotal <- mean(steps$steptotal)
 mediansteptotal <- median(steps$steptotal)
 ```
-Average Number of Steps Taken per Day: 1.0766189\times 10^{4}
+Average Number of Steps Taken per Day: 10766.19
 
 Median Number of Steps Taken per Day: 10765
 
@@ -111,9 +113,9 @@ hist(imputsteps$steptotal, ylab = "Frequency of Steps", xlab = "Total Steps per 
 mean(imputsteps$steptotal)
 median(imputsteps$steptotal)
 ```
-Average Imputed Steps: 9354.2295082
+Average Imputed Steps: 9354.23
 
-Median Imputed Steps: 1.0395\times 10^{4}
+Median Imputed Steps: 10395
 
 
 ```r

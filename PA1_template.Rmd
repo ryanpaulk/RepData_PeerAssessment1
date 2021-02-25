@@ -15,6 +15,8 @@ library(dplyr)
 options(dplyr.summarise.inform = FALSE) ## gets rid of a pesky "summarise()` ungrouping output (override with `.groups` argument)" message instead of fixing the problem
 library(data.table)
 library(ggplot2)
+options(scipen = 999) ## gets rid of some unnecessary scientific notation later
+options(digits = 2) ## makes averages prettier later on
 if (!exists("activity.csv")) {
   unzip("activity.zip")
 }
