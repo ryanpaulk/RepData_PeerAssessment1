@@ -1,0 +1,80 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+library(dplyr)
+library(data.table)
+library(ggplot2)
+## Loading and preprocessing the data
+if (!exists("activity.csv")) {
+  unzip("activity.zip")
+}
+activity <- fread("activity.csv")
+
+
+## What is mean total number of steps taken per day?
+####sum the steps per day
+####avg the sum of the steps per day
+steps <- activity %>% group_by(date) %>% summarize(steptotal = sum(steps)) %>% na.omit()
+
+
+## What is the average daily activity pattern?
+####histogram
+hist(steps$steptotal)
+####Calculate and report the mean and median of the total number of steps taken per day
+#### that means that ``` r thing with code hidden probably
+mean(steps$steptotal)
+median(steps$steptotal)
+####What is the average daily activity pattern?
+adap <- activity %>% group_by(interval) %>% na.omit() %>% summarize(stepint =mean(steps))
+
+#Make a time series plot (type = "l") of #the 5-minute interval (x-axis) and the average number of steps taken, #averaged across all days (y-axis)
+
+##### plot steps over intervals???
+ggplot(adap, aes(interval, stepint)) + geom_line()
+#Which 5-minute interval, on average across all the days in the dataset, #contains the maximum number of steps?
+adap[which.max(adap$stepint),]
+
+
+## Imputing missing values
+#### 1. Calculate and report the total number of missing values in the ####dataset (i.e. the total number of rows with `NA`s)
+sum(is.na(activity$steps))
+#### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+library(Hmisc)
+imput <- impute(activity$steps, fun = mean) ### default function is median
+#### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+activity$ImputedSteps <- impute(activity$steps) ### could have just done activity$steps
+
+#### 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+imputsteps <- activity %>% group_by(date) %>% summarize(steptotal = sum(ImputedSteps))
+hist(imputsteps$steptotal)
+#### Histogram looks the same since median was imputed.
+#### Histogram would look different if mean was imputed.
+
+mean(imputsteps$steptotal)
+median(imputsteps$steptotal)
+## Are there differences in activity patterns between weekdays and weekends?
+#### Maybe make a couple plots of activity for weekdays and weekends
+#### something like ggplot(imputsteps, aes(date, steptotal)) + geom_line()
+#### but break it out into two plots
+### make a day column
+imputsteps$day <- weekdays(imputsteps$date)
+activity$day <- weekdays(activity$date)
+activity$ImputedSteps <- impute(activity$steps)
+### lets clump the weekdays and weekends together
+### so that steps per interval can be graphed
+### How do I get weekday interval activity?
+### How do I get it to say either "weekday" or "weekend" in place of monday, tuesday, etc?
+### if weekday(date) == c(monday, tuesday, etc) then Day = Weekday?
+activity$WEEK <- ifelse(activity$day == "Saturday" | activity$day == "Sunday", "Weekend", "Weekday")
+dayends <- aggregate(activity$ImputedSteps, by = list(activity$WEEK, activity$interval), na.omit(mean))
+names(dayends) <- c("WEEK", "interval", "steps")
+ggplot(dayends, aes(x= interval, y = steps, color = WEEK)) + geom_line() + facet_grid(WEEK ~.) ##maybe add some labels for the finished product
+###### For this part the `weekdays()` function may be of some help here. Use
+#the dataset with the filled-in missing values for this part.
+
+#1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+
+#1. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using **simulated data**:
